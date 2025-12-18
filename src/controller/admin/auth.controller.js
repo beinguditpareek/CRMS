@@ -87,6 +87,7 @@ const signOut = async (req, res) => {
     );
 
     SuccessResponse.message = "logout successfull";
+    SuccessResponse.data={}
     return res.status(StatusCodes.OK).json(SuccessResponse);
   } catch (error) {
     ErrorResponse.error.message = "Internal server error";

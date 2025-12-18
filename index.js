@@ -11,7 +11,7 @@ app.use('/',AdminRoutes)
 
   
 Utility.redisFun()
-// Utility.encryptedPassword('555555555')
+// Utility.encryptedPassword('admin2')
 
 app.listen(ServerConfig.PORT,()=>{
     console.log(`Server is running on port ${ServerConfig.PORT}`)

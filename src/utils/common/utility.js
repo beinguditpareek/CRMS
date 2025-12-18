@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const { ServerConfig } = require('../../config')
 
 const encryptedPassword = async(plainPassword)=>{
-console.log(bcrypt.hashSync(plainPassword,ServerConfig.SALT_ROUNDS))
+console.log(bcrypt.hashSync(plainPassword,Number(ServerConfig.SALT_ROUNDS)))
 }
 
 
