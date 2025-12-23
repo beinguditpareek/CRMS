@@ -77,7 +77,7 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       school_assets: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON,
         allowNull: true,
       },
 

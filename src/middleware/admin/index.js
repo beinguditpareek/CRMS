@@ -1,3 +1,3 @@
 module.exports={
-    AdminUserMiddleware:require('./admin.user.middleware')
+    AdminUserMiddleware:require('./user.middleware')
 }
