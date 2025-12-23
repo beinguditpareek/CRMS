@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('User_details', {
+    await queryInterface.createTable("User_details", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,11 +14,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id',
+          model: "User",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
 
       name: {
@@ -30,11 +30,18 @@ module.exports = {
         type: Sequelize.STRING(150),
         allowNull: false,
         unique: true,
+        validate: {
+          isEmail: true,
+          notEmpty: true,
+        },
       },
 
       contact: {
         type: Sequelize.STRING(15),
-        allowNull: true,
+        allowNull: false,
+        validate: {
+          is: /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/,
+        },
       },
 
       designation: {
@@ -68,7 +75,7 @@ module.exports = {
       },
 
       school_assets: {
-        type: Sequelize.STRING,
+        type: Sequelize.JSON,
         allowNull: true,
       },
 
@@ -81,22 +88,18 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
 
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
-
-    // 🔹 Helpful indexes
-    await queryInterface.addIndex('User_details', ['user_id']);
-    await queryInterface.addIndex('User_details', ['email']);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('User_details');
+    await queryInterface.dropTable("User_details");
   },
 };

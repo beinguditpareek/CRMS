@@ -71,11 +71,6 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
-
-    // 🔹 Indexes for performance
-    await queryInterface.addIndex('Subscriptions', ['user_id']);
-    await queryInterface.addIndex('Subscriptions', ['plan_id']);
-    await queryInterface.addIndex('Subscriptions', ['status']);
   },
 
   async down(queryInterface, Sequelize) {

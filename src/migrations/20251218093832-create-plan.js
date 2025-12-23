@@ -44,7 +44,6 @@ module.exports = {
       },
 
       validity: {
-        // validity in DAYS
         type: Sequelize.INTEGER,
         allowNull: false,
         comment: 'Validity in days',
