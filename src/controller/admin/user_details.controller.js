@@ -15,12 +15,10 @@ const createUserDetails = async (req, res) => {
 
       school_website_url,
     } = req.body;
-    // school_logo
     const school_logo = req.files?.school_logo
       ? req.files.school_logo[0].path
       : null;
 
-    // school_assets (multiple)
     const school_assets = req.files?.school_assets
       ? req.files.school_assets.map((file) => file.path)
       : [];
@@ -76,6 +74,50 @@ const createUserDetails = async (req, res) => {
   }
 };
 
+const getAllUserDetails = async (req,res)=>{
+    try {
+        const allUsers = await User_details.findAll({
+            // attributes:{
+            //     exclude:['password']
+            // },
+            order:[
+                ['id','DESC']
+            ]
+        });
+
+         SuccessResponse.message = "User_details fetched successfully";
+         SuccessResponse.data=allUsers
+    return res.status(StatusCodes.CREATED).json(SuccessResponse);
+    } catch (error) {
+         ErrorResponse.messgae = "Something went wrong in GetAllUsersDetails";
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+    }
+}
+const deleteUserDetails = async (req,res)=>{
+    try {
+        const userId = req.params.id
+        const userToDelete = await User_details.destroy({
+           where:{
+            id: userId
+           }
+        });
+
+         SuccessResponse.message = "User_details Deleted successfully";
+         SuccessResponse.data=userToDelete
+    return res.status(StatusCodes.CREATED).json(SuccessResponse);
+    } catch (error) {
+         ErrorResponse.messgae = "Something went wrong in deleteAllUserDEtails";
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+    }
+}
+
+
+
+
 module.exports = {
   createUserDetails,
+  getAllUserDetails,
+  deleteUserDetails
 };
