@@ -4,17 +4,29 @@ const { SuccessResponse, ErrorResponse, DeleteFiles } = require("../../utils/com
 
 const createUserDetails = async (req, res) => {
   try {
+    const { user_id } = req.body;
+
+    /** ---------- CHECK ALREADY EXISTS ---------- **/
+    const alreadyExists = await User_details.findOne({
+      where: { user_id },
+    });
+
+    if (alreadyExists) {
+      DeleteFiles(req.files);
+      ErrorResponse.message = "User details already exist for this user";
+      return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
+    }
+
     const {
-      user_id,
       name,
       email,
       contact,
       designation,
       school_name,
       school_address,
-
       school_website_url,
     } = req.body;
+
     const school_logo = req.files?.school_logo
       ? req.files.school_logo[0].path
       : null;
@@ -22,11 +34,6 @@ const createUserDetails = async (req, res) => {
     const school_assets = req.files?.school_assets
       ? req.files.school_assets.map((file) => file.path)
       : [];
-
-    console.log(
-      "school_assets type:",
-      User_details.rawAttributes.school_assets.type.key
-    );
 
     const response = await User_details.create({
       user_id,
@@ -42,37 +49,23 @@ const createUserDetails = async (req, res) => {
       status: true,
     });
 
-    SuccessResponse.message = "User_details created successfully";
+    SuccessResponse.message = "User details created successfully";
     SuccessResponse.data = response;
     return res.status(StatusCodes.CREATED).json(SuccessResponse);
   } catch (error) {
-    // console.log(error);
-    DeleteFiles(req.files)
-    if (
-      error.name == "SequelizeUniqueConstraintError" ||
-      error.name == "SequelizeValidationError"
-    ) {
-      const err = error.errors.map((e) => {
-        return e.message;
-      });
-      ErrorResponse.messgae = "Something went wrong while register user";
-      ErrorResponse.error.explaination = [err];
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
-    }
-    if (
-      error.name == "SequelizeDatabaseError" ||
-      error.name == "SequelizeForeignKeyConstraintError"
-    ) {
-      ErrorResponse.messgae = "Something went wrong while register user";
-      ErrorResponse.error.explaination = [error.original.sqlMessage];
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+    DeleteFiles(req.files);
+
+    /** UNIQUE CONSTRAINT HIT */
+    if (error.name === "SequelizeUniqueConstraintError") {
+      ErrorResponse.message = "User details already exist for this user";
+      return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
     }
 
-    ErrorResponse.messgae = "Something went wrong";
-
+    ErrorResponse.message = "Something went wrong";
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
   }
 };
+
 
 const getAllUserDetails = async (req,res)=>{
     try {
@@ -112,6 +105,8 @@ const deleteUserDetails = async (req,res)=>{
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
     }
 }
+
+
 
 
 
