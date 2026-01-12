@@ -26,15 +26,20 @@ const authenticateUser = async (req, res, next) => {
       return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
     }
 
+    // 🔥 MAIN FIX — TOKEN MATCH
+    if (!user.jwt_token || user.jwt_token !== token) {
+      ErrorResponse.message = "Session expired. Please login again.";
+      return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
+    }
+
     if (user.isBlocked) {
       ErrorResponse.message = "Account blocked";
       return res.status(StatusCodes.FORBIDDEN).json(ErrorResponse);
     }
 
-    req.user = user; // ✅ logged-in user
+    req.user = user;
     next();
   } catch (error) {
-    console.log(error)
     ErrorResponse.message = "Invalid or expired token";
     return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
   }
