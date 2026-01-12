@@ -6,7 +6,7 @@ const createUserDetails = async (req, res) => {
   try {
     const { user_id } = req.body;
 
-    /** ---------- CHECK ALREADY EXISTS ---------- **/
+    
     const alreadyExists = await User_details.findOne({
       where: { user_id },
     });
@@ -55,7 +55,7 @@ const createUserDetails = async (req, res) => {
   } catch (error) {
     DeleteFiles(req.files);
 
-    /** UNIQUE CONSTRAINT HIT */
+    
     if (error.name === "SequelizeUniqueConstraintError") {
       ErrorResponse.message = "User details already exist for this user";
       return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);

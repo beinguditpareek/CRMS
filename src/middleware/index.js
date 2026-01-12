@@ -1,3 +1,4 @@
 module.exports={
-    Middleware:require('./admin')
+    Middleware:require('./admin'),
+    UserMiddleware:require('./users')
 }

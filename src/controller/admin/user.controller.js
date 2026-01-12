@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
     SuccessResponse.message = "User created successfully";
     return res.status(StatusCodes.CREATED).json(SuccessResponse);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (
       error.name == "SequelizeUniqueConstraintError" ||
       error.name == "SequelizeValidationError"

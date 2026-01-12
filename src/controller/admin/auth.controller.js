@@ -10,13 +10,13 @@ const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     const emailToLowerCase = email.toLowerCase();
-    console.log(emailToLowerCase);
+    // console.log(emailToLowerCase);
     const getAdmin = await Admin.findOne({
       where: {
         email: emailToLowerCase,
       },
     });
-    console.log(getAdmin);
+    // console.log(getAdmin);
     if (getAdmin === null) {
       ErrorResponse.error.message = "Email Doesnot exists";
       return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);

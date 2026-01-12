@@ -24,7 +24,7 @@ const validateCreateUserDetails = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.log(error);
+    // console.log(error);
 
     ErrorResponse.message =
       "Something went wrong in validateCreateUserDetails Middleware";
