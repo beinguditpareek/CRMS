@@ -5,12 +5,14 @@ const { SuccessResponse, ErrorResponse, DeleteFiles } = require("../../utils/com
 const patchUserDetails = async (req, res) => {
   try {
     const userDetailsId = req.params.id;
+    const loggedInUserId = req.user.id; // 🔐 from JWT
 
     const {
       name,
       email,
       contact,
       designation,
+      description,
       school_name,
       school_address,
       school_website_url,
@@ -24,12 +26,18 @@ const patchUserDetails = async (req, res) => {
       ErrorResponse.message = "User_details not found";
       return res.status(StatusCodes.NOT_FOUND).json(ErrorResponse);
     }
-
+     /** 🔥 OWNERSHIP CHECK */
+    if (userDetails.user_id !== loggedInUserId) {
+      DeleteFiles(req.files);
+      ErrorResponse.message = "You are not allowed to update this profile";
+      return res.status(StatusCodes.FORBIDDEN).json(ErrorResponse);
+    }
     const updatePayload = {
       name,
       email,
       contact,
       designation,
+      description,
       school_name,
       school_address,
       school_website_url,
@@ -75,6 +83,7 @@ const patchUserDetails = async (req, res) => {
 const updateUserAssets = async (req, res) => {
   try {
     const userDetailsId = req.params.id;
+    const loggedInUserId = req.user.id; // 🔐 from JWT
 
     const userDetails = await User_details.findByPk(userDetailsId);
 
@@ -82,6 +91,12 @@ const updateUserAssets = async (req, res) => {
       DeleteFiles(req.files);
       ErrorResponse.message = "User_details not found";
       return res.status(StatusCodes.NOT_FOUND).json(ErrorResponse);
+    }
+     /** 🔥 OWNERSHIP CHECK */
+    if (userDetails.user_id !== loggedInUserId) {
+      DeleteFiles(req.files);
+      ErrorResponse.message = "You are not allowed to update this profile";
+      return res.status(StatusCodes.FORBIDDEN).json(ErrorResponse);
     }
 
     if (!req.files?.school_assets) {

@@ -1,5 +1,6 @@
 const express = require('express')
 const { ServerConfig } = require('./src/config')
+const cors = require('cors')
 // const redis = require('./src/config/redis')
 
 const { Utility} = require('./src/utils/common')
@@ -7,6 +8,13 @@ const  AdminRoutes  = require('./src/routes')
 const app = express()
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+
+app.use(cors({
+  origin: "http://localhost:5173", // frontend port
+  credentials: true
+}));
+
 app.use("/uploads", express.static("uploads"));
 
 app.use('/',AdminRoutes)

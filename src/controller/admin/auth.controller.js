@@ -34,6 +34,10 @@ const signIn = async (req, res) => {
       email: getAdmin.email,
       type: getAdmin.type,
     });
+     res.cookie("token", jwt, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
     const [updateData] = await Admin.update(
       {
         jwt_token: jwt,

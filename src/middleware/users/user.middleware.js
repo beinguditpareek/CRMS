@@ -4,9 +4,6 @@ const bcrypt = require("bcrypt");
 const { ServerConfig } = require("../../config");
 const { User } = require("../../models");
 
-
-
-
 const authenticateUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -26,7 +23,6 @@ const authenticateUser = async (req, res, next) => {
       return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
     }
 
-    // 🔥 MAIN FIX — TOKEN MATCH
     if (!user.jwt_token || user.jwt_token !== token) {
       ErrorResponse.message = "Session expired. Please login again.";
       return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
@@ -46,13 +42,8 @@ const authenticateUser = async (req, res, next) => {
 };
 
 
-
-
-
-
 const validateChangePassword = async (req, res, next) => {
   try {
-    // 🔐 logged-in user (authenticateUser middleware se)
     const user = req.user;
 
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
@@ -67,14 +58,12 @@ const validateChangePassword = async (req, res, next) => {
       errors.push("New password must be different from old password");
 
     if (errors.length > 0) {
-      
       ErrorResponse.message = "Validation failed";
       ErrorResponse.error.explaination = errors;
       return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
     }
 
     if (!user) {
-     
       ErrorResponse.message = "User not found";
       return res.status(StatusCodes.NOT_FOUND).json(ErrorResponse);
     }
@@ -85,19 +74,17 @@ const validateChangePassword = async (req, res, next) => {
     );
 
     if (!isOldPasswordCorrect) {
-     
       ErrorResponse.message = "Old password is not correct";
       return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
     }
 
-    // 🔐 hash new password
     const hashedNewPassword = await Utility.encryptedPassword(newPassword);
 
     req.hashedPassword = hashedNewPassword;
     next();
   } catch (error) {
     // console.log(error);
-    
+
     ErrorResponse.message =
       "Something went wrong in validateChangePassword middleware";
     ErrorResponse.error.explaination = [error.message];
@@ -105,9 +92,7 @@ const validateChangePassword = async (req, res, next) => {
   }
 };
 
-
-
-module.exports={
-    authenticateUser,
-    validateChangePassword
-}
+module.exports = {
+  authenticateUser,
+  validateChangePassword,
+};

@@ -1,6 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
-const { User_details } = require("../../models");
+const { User_details, User } = require("../../models");
 const { SuccessResponse, ErrorResponse, DeleteFiles } = require("../../utils/common");
+
 
 const createUserDetails = async (req, res) => {
   try {
@@ -22,6 +23,7 @@ const createUserDetails = async (req, res) => {
       email,
       contact,
       designation,
+      description,
       school_name,
       school_address,
       school_website_url,
@@ -41,6 +43,7 @@ const createUserDetails = async (req, res) => {
       email,
       contact,
       designation,
+      description,
       school_name,
       school_address,
       school_logo,
@@ -48,6 +51,8 @@ const createUserDetails = async (req, res) => {
       school_assets,
       status: true,
     });
+    await User.update({ status: true }, { where: { id: user_id } });
+
 
     SuccessResponse.message = "User details created successfully";
     SuccessResponse.data = response;
@@ -65,6 +70,135 @@ const createUserDetails = async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
   }
 };
+
+
+const patchUserDetailsByAdmin = async (req, res) => {
+  try {
+    const userDetailsId = req.params.id;
+    const adminId = req.admin.id; // 🔐 logged-in admin
+
+    const {
+      name,
+      email,
+      contact,
+      designation,
+      description,
+      school_name,
+      school_address,
+      school_website_url,
+      status,
+    } = req.body || {};
+
+    const userDetails = await User_details.findByPk(userDetailsId);
+
+    if (!userDetails) {
+      DeleteFiles(req.files);
+      const errRes = ErrorResponse();
+      errRes.message = "User details not found";
+      return res.status(StatusCodes.NOT_FOUND).json(errRes);
+    }
+
+    /** ❌ NO OWNERSHIP CHECK (ADMIN OVERRIDE) */
+
+    const updatePayload = {
+      name,
+      email,
+      contact,
+      designation,
+      description,
+      school_name,
+      school_address,
+      school_website_url,
+      status,
+    };
+
+    /** ---------- SCHOOL LOGO ---------- **/
+    if (req.files?.school_logo) {
+      if (userDetails.school_logo) {
+        DeleteFiles({
+          school_logo: [{ path: userDetails.school_logo }],
+        });
+      }
+      updatePayload.school_logo = req.files.school_logo[0].path;
+    }
+
+    /** ---------- BLOCK ASSETS (SEPARATE API) ---------- **/
+    if (req.files?.school_assets) {
+      DeleteFiles(req.files);
+      
+      ErrorResponse.message = "Use separate API to update school assets";
+      return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
+    }
+
+    await User_details.update(updatePayload, {
+      where: { id: userDetailsId },
+    });
+
+   
+    SuccessResponse.message = "User details updated successfully by admin";
+    SuccessResponse.data = {};
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    console.log(error);
+    DeleteFiles(req.files);
+    
+    ErrorResponse.message =
+      "Something went wrong while admin updating user details";
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+  }
+};
+
+
+
+const updateUserAssetsByAdmin = async (req, res) => {
+  try {
+    const userDetailsId = req.params.id;
+    const adminId = req.admin.id; // 🔐 logged-in admin (for audit if needed)
+
+    const userDetails = await User_details.findByPk(userDetailsId);
+
+    if (!userDetails) {
+      DeleteFiles(req.files);
+            ErrorResponse.message = "User details not found";
+      return res.status(StatusCodes.NOT_FOUND).json(ErrorResponse);
+    }
+
+    /** ❌ NO OWNERSHIP CHECK (ADMIN OVERRIDE) */
+
+    if (!req.files?.school_assets) {
+            ErrorResponse.message = "No assets provided";
+      return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
+    }
+
+    /** ---------- DELETE OLD ASSETS ---------- **/
+    if (userDetails.school_assets?.length > 0) {
+      const oldAssets = userDetails.school_assets.map((path) => ({ path }));
+      DeleteFiles({ school_assets: oldAssets });
+    }
+
+    /** ---------- SAVE NEW ASSETS ---------- **/
+    const newAssets = req.files.school_assets.map((file) => file.path);
+
+    await User_details.update(
+      { school_assets: newAssets },
+      { where: { id: userDetailsId } }
+    );
+
+   
+    SuccessResponse.message = "School assets updated successfully by admin";
+    SuccessResponse.data = {};
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    console.log(error);
+    DeleteFiles(req.files);
+        ErrorResponse.message = "Something went wrong while admin updating assets";
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+  }
+};
+
+
+
+// module.exports = { patchUserDetails,updateUserAssets };
 
 
 const getAllUserDetails = async (req,res)=>{
@@ -114,5 +248,7 @@ const deleteUserDetails = async (req,res)=>{
 module.exports = {
   createUserDetails,
   getAllUserDetails,
-  deleteUserDetails
+  deleteUserDetails,
+  patchUserDetailsByAdmin,
+  updateUserAssetsByAdmin
 };

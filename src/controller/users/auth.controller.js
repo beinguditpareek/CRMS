@@ -18,6 +18,10 @@ const signIn = async (req, res) => {
       ErrorResponse.error.message = "Email Doesnot exists";
       return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
     }
+    if (getUser.isBlocked){
+       ErrorResponse.error.message = "User is Blocked, Contact to admin";
+      return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
+    }
     const comparePassword = await Utility.comparePassword(
       password,
       getUser.password
@@ -30,6 +34,10 @@ const signIn = async (req, res) => {
       id: getUser.id,
       email: getUser.email,
       type: getUser.type,
+    });
+     res.cookie("token", jwt, {
+      httpOnly: true,
+      sameSite: "lax",
     });
     const [updateData] = await User.update(
       {

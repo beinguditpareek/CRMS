@@ -124,9 +124,60 @@ const toggleIsBlocked = async (req, res) => {
 //   }
 // }
 
+// const changePassword = async (req, res) => {
+//   try {
+//     await User.update(
+//       { password: req.hashedPassword },
+//       { where: { id: req.user.id } } 
+//     );
+
+//     SuccessResponse.message = "Password changed successfully";
+//     SuccessResponse.data = {};
+//     return res.status(StatusCodes.OK).json(SuccessResponse);
+//   } catch (error) {
+//     ErrorResponse.message = "Something went wrong in changePassword";
+//     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+//   }
+// };
+// const { User } = require("../../models");
+
+const adminResetUserPassword = async (req, res) => {
+  try {
+    const userId = req.params.id; // 👈 admin target user
+    const hashedPassword = req.hashedPassword;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+     
+      ErrorResponse.message = "User not found";
+      return res.status(StatusCodes.NOT_FOUND).json(ErrorResponse);
+    }
+
+    await User.update(
+      { password: hashedPassword },
+      { where: { id: userId } }
+    );
+
+    
+    SuccessResponse.message = "User password reset successfully";
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    console.log(
+      error
+    );
+    
+    
+    ErrorResponse.message = "Something went wrong while resetting password";
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+  }
+};
+
+
 module.exports = {
   createUser,
   getAllUsers,
   toggleIsBlocked,
+  adminResetUserPassword
   // changePassword
 };

@@ -82,7 +82,45 @@ const validateCreateUser = async (req, res, next) => {
 //   }
 // };
 
+const authenticateUser = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      ErrorResponse.message = "Authentication required";
+      return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = Utility.verifyJwtToken(token);
+
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      ErrorResponse.message = "User not found";
+      return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
+    }
+
+    if (!user.jwt_token || user.jwt_token !== token) {
+      ErrorResponse.message = "Session expired. Please login again.";
+      return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
+    }
+
+    if (user.isBlocked) {
+      ErrorResponse.message = "Account blocked";
+      return res.status(StatusCodes.FORBIDDEN).json(ErrorResponse);
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    ErrorResponse.message = "Invalid or expired token";
+    return res.status(StatusCodes.UNAUTHORIZED).json(ErrorResponse);
+  }
+};
+
 module.exports = {
   validateCreateUser,
+  authenticateUser
   // validateChangePassword
 };
