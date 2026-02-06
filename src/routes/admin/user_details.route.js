@@ -38,6 +38,7 @@ Controller.UserDetailsController.updateUserAssetsByAdmin
 );
 
 router.get("/", Controller.UserDetailsController.getAllUserDetails);
+router.get("/:id", Controller.UserDetailsController.getSingleUserDetailByAdmin);
 router.delete("/:id", Controller.UserDetailsController.deleteUserDetails);
 
 module.exports = router;

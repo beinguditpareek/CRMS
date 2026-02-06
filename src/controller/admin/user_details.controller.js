@@ -221,6 +221,43 @@ const getAllUserDetails = async (req,res)=>{
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
     }
 }
+const getSingleUserDetailByAdmin = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: ["password", "jwt_token"],
+      },
+      include: {
+        model: User_details,
+        as: "User_details",
+      },
+    });
+
+    if (!user) {
+      ErrorResponse.message = "User not found";
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ErrorResponse);
+    }
+
+    SuccessResponse.message = "User details fetched successfully";
+    SuccessResponse.data = user;
+    return res
+      .status(StatusCodes.OK)
+      .json(SuccessResponse);
+  } catch (error) {
+    console.log(error);
+
+    ErrorResponse.message =
+      "Something went wrong while fetching user details";
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(ErrorResponse);
+  }
+};
+
 const deleteUserDetails = async (req,res)=>{
     try {
         const userId = req.params.id
@@ -248,6 +285,7 @@ const deleteUserDetails = async (req,res)=>{
 module.exports = {
   createUserDetails,
   getAllUserDetails,
+  getSingleUserDetailByAdmin,
   deleteUserDetails,
   patchUserDetailsByAdmin,
   updateUserAssetsByAdmin

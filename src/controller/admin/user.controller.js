@@ -172,12 +172,47 @@ const adminResetUserPassword = async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
   }
 };
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findOne({
+      where: { id },
+      include: {
+        model: User_details,
+        as: "User_details", // 🔥 SAME alias as frontend
+      },
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+
+    if (!user) {
+      ErrorResponse.message = "User not found";
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ErrorResponse);
+    }
+
+    SuccessResponse.message = "User fetched successfully";
+    SuccessResponse.data = user;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    console.log(error);
+    ErrorResponse.message = "Something went wrong in GetUserById";
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(ErrorResponse);
+  }
+};
+
 
 
 module.exports = {
   createUser,
   getAllUsers,
   toggleIsBlocked,
-  adminResetUserPassword
+  adminResetUserPassword,
+  getUserById
   // changePassword
 };

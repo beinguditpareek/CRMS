@@ -32,6 +32,8 @@ const createPlan = async (req, res) => {
       name,
       features,
       base_price,
+
+      
       offer_price,
       student_limit,
       team_limit,
@@ -143,6 +145,7 @@ const updatePlan = async (req, res) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
   }
 };
+
 
 
 module.exports = {

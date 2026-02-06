@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       });
+      User.hasMany(models.Transaction, {
+        foreignKey: "user_id",
+        as: "transactions",
+      });
     }
   }
   User.init(
@@ -40,8 +44,8 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
       },
-      isBlocked:{
-         type: DataTypes.BOOLEAN,
+      isBlocked: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
       },
@@ -56,8 +60,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       jwt_token: {
         type: DataTypes.STRING,
-        allowNull:true,
-        defaultValue:null
+        allowNull: true,
+        defaultValue: null,
       },
 
       status: {
@@ -69,7 +73,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
-    }
+    },
   );
   return User;
 };

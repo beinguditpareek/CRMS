@@ -12,6 +12,7 @@ router.post(
   Controller.UserController.createUser
 );
 router.get("/", Controller.UserController.getAllUsers);
+router.get("/:id", Controller.UserController.getUserById);
 router.put("/access/:id", Controller.UserController.toggleIsBlocked);
 // router.put('/changepassword/:id',AdminUserMiddleware.validateChangePassword,Controller.UserController.)
 // router.post('/signout',Controller.AuthController.signOut)
